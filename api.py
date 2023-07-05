@@ -28,6 +28,26 @@ class CTIApi:
                 os.system(f'docker run {request_body.container}')
             except httpx.HTTPError as e:
                 raise HTTPException(status_code=500, detail=f"Error: {e}") from e
+            
+        @self.app.post("/run")
+        async def forward_request(request_body: BodyReq):
+            try:
+                os.system(f'docker run - {request_body.container}')
+            except httpx.HTTPError as e:
+                raise HTTPException(status_code=500, detail=f"Error: {e}") from e
+
+        @self.app.post("/image")
+        async def image(request_body: BodyReq):
+            try:
+                os.system(f'docker images | grep {request_body.container} > DockerPs.txt')
+                image_name = request_body.container
+                with open("DockerPs.txt") as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if image_name in line:
+                            os.system(f'docker rmi {image_name}')
+            except httpx.HTTPError as e:
+                raise HTTPException(status_code=500, detail=f"Error: {e}") from e
 
     
     def run(self):
