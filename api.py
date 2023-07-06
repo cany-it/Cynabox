@@ -1,5 +1,5 @@
 from fastapi import FastAPI,HTTPException
-from fastapi.middleware.cors import CORSMiddleware as CM
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Union
 import uvicorn
@@ -18,6 +18,14 @@ class SCANApi:
         self.app = FastAPI(
             title="Scan Api",
             description="Fast API"
+        )
+
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=['*'],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
         )
 
         def add_middleware():
@@ -62,16 +70,8 @@ class SCANApi:
                 raise HTTPException(status_code=500, detail=f"Error: {e}") from e
 
     def run(self):
-        uvicorn.run(self.app, host='0.0.0.0', port=9999)
-
-tmp = CM(SCANApi,
-            allow_origins=["*"],
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
+        uvicorn.run(self.app, host='localhost', port=9999)
 
 api = SCANApi()
 api.init()
-api.add_middleware = tmp
 api.run()
