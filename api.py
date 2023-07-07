@@ -10,6 +10,8 @@ import os
 
 class BodyReq(BaseModel):
     container: Union[str, None] = None
+    command: Union[str, None] = None
+    params: Union[str, None] = None
     timeout: Union[float, None] = 30
 
 class SCANApi:
@@ -38,7 +40,11 @@ class SCANApi:
         @self.app.post("/run")
         async def forward_request(request_body: BodyReq):
             try:
-                os.system(f'docker run {request_body.container}')
+                if request_body.command == 'openvas':
+                    script_python = "create_openvas_scan.py"
+                    target = request_body.params 
+                    os.system(f'python3 {script_python} {target}')
+
             except httpx.HTTPError as e:
                 raise HTTPException(status_code=500, detail=f"Error: {e}") from e
 
